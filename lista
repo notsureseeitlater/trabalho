@@ -1,1 +1,102 @@
-Fazer:
+Divisão:
+Pt 1
+Menu
+Nova partida
+Classes personagem e derivados
+Inimigos e dificuldade
+Combate e sistemas de turnos e essas questões de jogabilidade
+Tratamentos de erros
+Testes de persistência
+
+Pt 2
+Testes JUnit
+Telas Swing
+Salvar e carregar no Windows
+Arquivamento de ranking para exibição na tela
+Documentação e empacotamento
+
+Obs: isso é suscetível à mudanças, só para a gente ter uma noção bem primitiva do que o outro pode fazer + ou -
+
+Tela inicial - menu (nova partida, carregar partida, consulta de ranking, sair - pode ser chamadas via switch-case?)
+  =>  Nova partida - escolhas: nome, classe (vetorde 3 casas - guerreiro mago arqueiro talvez?)
+      => pre inicio: preenchimento do inventário (2 poções mínimo), atributos iniciais conforme classe escolhida, 
+                     verificação nome, definir status jogo inicial (encontro 1, turno 0, pontos 0) > chamar tela combate depois do pré
+         verificações: Strings null e is.Blank ou Empty, vetor > qtd casas
+
+Personagens (abstrato primeiro)
+Características próprias das classes - Guerreiro (vida e atq maior), Arqueiro (habilidade precisão e resto moderado), 
+Mago (habilidade magia e vida menor) > todos herdam de personagens
+  => definir - vida max, vida atual, dano base, energia/mana, energia/mana max, habilidade (especial)
+  => verificações (if/else) - vida < 0, vida > max, energia < 0, energia > max
+    ... polimosrfismo pras habilidades e o resto se moldarem conforme a classse
+
+Tela combate
+  => Exibição - nome + classe do jogador, via e energia/mana, inimigo e vida atual, encontro + turno, inventário e qtd poções, ações (histórico)
+  => Pressionáveis - Atacar, Defender, Habilidade Especial (usar qnd apertar obv), Usar Poção, Salvar Jogo
+    => pós: chamada de funções conforme botão, atualização de valores depois de ações, limitar botões se não puderem ser usadas 
+            ou ao menos deixar um aviso de que tal ação não pôde ser concretizada (JOp? espero que possa)
+
+Ataque - clique botão
+=> Calcular dano base, subtrair defesa do inimigo, aplicar dano na vida inimiga, verificar se a vida chegou a 0, registrar dano (histórico)
+Fórmula: danoFinal = Math.max(1, danoBase - defesaInimigo);
+=> Limitar vida negativa (if/else) 
+
+Defesa - clique botão
+=> Ativar defesa (boolean defendendo = true) > execução ação oponente > redução do dano recebido > defendendo = false após receber o dano
+Fórmula: danoRecebido = Math.max(0, danoInimigo - reducaoDefesa);
+=> Limitar acúmulo de defesas 
+  => ex:
+    if (defendendo) {
+      danoRecebido = Math.max(0, danoInimigo - reducaoDefesa);
+      defendendo = false;
+    } else {
+      danoRecebido = danoInimigo;
+    }
+
+Turnos 
+=> Por dentro: identificar escolha via botão; verificar se ação é válida, se inválida mostrar mensagem e anular turno, se válida > executar ação do jogador; 
+verificar se o inimigo morreu, se estiver vivo > chamar ação automática do inimigo; verificar se o jogador morreu; atualizar turno; atualizar tela + histórico
+Utilizar chamadas sequenciais de métodos - evitar while esperando uma ação (obs: tudo isso tem que ser mexido durnte o clique)
+
+Habilidade Especial
+Cada personagem possui uma habilidade diferente:
+=> Guerreiro > golpe poderoso (dano +)
+   Arqueiro > precisão (ignora parte da defesa do op)
+   Mago > magia (dano mágico +)
+=> Por dentro: verificar se existe energia/mana suficiente, se não tem > msg erro e anula turno, se tem > desconta o custo, executar habilidade, 
+atualizar vida do inimigo, registrar no histórico
+  ... utilizar polimorfismo p executar habilidade da classe selecionada
+
+Inventário (e poçãoes) - inicia em 2 poções(ArrayList pra ir crescendo)
+=> Por dentro: verificar se estoque > 0, verifica qtd vida (cheia ou n/true ou false), se inválidar > msg e n consome turno, se válido > recupera vida e remove 1 
+das poções, atualiza histórico e inventário
+Fórmula: vidaAtual = Math.min(vidaAtual + cura, vidaMaxima);
+
+Inimigos (3 tipos + encontro crescente)
+	=> Criar classe base (ou herdar de Personagem) + 3 tipos diferentes com comportamento próprio:
+Inimigo 1 (Encontro 1 - fraco): só ataca normal
+Inimigo 2 (Encontro 2 - médio): alterna ataque normal e defesa (ou golpe mais forte a cada X turnos)
+Inimigo 3 (Encontro 3 - chefe): usa habilidade/golpe pesado quando energia/vida atingir condição + defesa
+	=> Por dentro: método decidirAcao() usando if/else (ex: vida < 40% ou turno % 2 == 0) > executa logo após o jogador no mesmo clique
+
+Fim de Jogo (e pontuação)
+=> Vitória (encontro 3 vencido) ou Derrota (vidaAtual == 0)
+	=> Bloquear botões de ação (Atacar, Defender, Habilidade, Poção) e 	liberar apenas Novo Jogo / Ranking / Menu
+=> Fórmula (sem negativo):
+pontos = Math.max(0, (encontrosVencidos * 300) + (vidaAtual * 5) - (turnosTotais * 10) + bonusVitoria);
+(bonusVitoria = 500 se venceu, 0 se perdeu)
+
+Exceções Próprias e Validações
+=> Criar classe ... JogoException extends Exception (ou RuntimeException) igual aquele em sala
+=> Lançar quando: nome vazio/blank, classe inválida, energia insuficiente, estoque de poção == 0, ação com jogo já encerrado, arquivo inválido/corrompido
+=> Na tela: capturar com try/catch (nunca catch vazio) e mostrar mensagem clara (JLabel de aviso ou JOptionPane) sem fechar o programa
+
+Ranking
+=> Guardar registros (nome, classe, pontuacao, resultado) em arquivo próprio na pasta configurada
+	=> Ao finalizar partida: adicionar registro e salvar no arquivo
+=> Tela de Ranking: ler arquivo > joga ArrayList > ordenar com Collections.sort/List.sort (maior pontuação primeiro; desempate: menor número de turnos ou ordem alfabética) 
+> exibir em JTable ou JTextArea
+
+A parte de salvar não faço ideia de como será executada, foi mal  :/
+tem que fazer a parte do teste unitário também, um dos meus maiores fracos por sinal
+tem outras partes a serem feitas também e podem ser vistas melhor na pt 2
