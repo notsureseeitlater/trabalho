@@ -94,7 +94,8 @@ Exceções Próprias e Validações
 Ranking
 => Guardar registros (nome, classe, pontuacao, resultado) em arquivo próprio na pasta configurada
 	=> Ao finalizar partida: adicionar registro e salvar no arquivo
-=> Tela de Ranking: ler arquivo > joga ArrayList > ordenar com Collections.sort/List.sort (maior pontuação primeiro; desempate: menor número de turnos ou ordem alfabética) 
+=> Tela de Ranking: ler arquivo > joga ArrayList > ordenar com Collections.sort/List.sort (maior pontuação primeiro; desempate: menor número de turnos ou ordem 
+alfabética) 
 > exibir em JTable ou JTextArea
 
 A parte de salvar não faço ideia de como será executada, foi mal  :/
