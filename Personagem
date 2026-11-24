@@ -1,1 +1,139 @@
-add conteudo
+//add package quando juntarmos em Eclipse ou outra interface
+//obs: colocar os personagem e oponentes juntos nesse package
+public abstract class Personagem {
+
+    private String nome;
+    private int vidaMax;
+    private int vidaAtual;
+    private int ataqueBase;
+    private int defesaBase;
+    private boolean defendendo;
+
+    public Personagem(
+            String nome,
+            int vidaMax,
+            int ataqueBase,
+            int defesaBase) {
+                if (nome == null || nome.isBlank()) {
+                    throw new IllegalArgumentException("O nome do personagem é obrigatorio.");
+                }
+                if (vidaMax <= 0) {
+                    throw new IllegalArgumentException("Vida maxima deve ser maior que zero.");
+                }
+                if (ataqueBase <= 0) {
+                    throw new IllegalArgumentException("Ataque base deve ser maior que zero.");
+                }
+                if (defesaBase < 0) {
+                    throw new IllegalArgumentException("Defesa base não pode ser negativa");
+                }
+                this.nome = nome.trim();
+                this.vidaMax = vidaMax;
+                this.vidaAtual = vidaMax;
+                this.ataqueBase = ataqueBase;
+                this.defesaBase = defesaBase;
+                this.defendendo = false;
+            }
+
+    public Personagem(
+            String nome,
+            int vidaMax,
+            int vidaAtual,
+            int ataqueBase,
+            int defesaBase,
+            boolean defendendo) {
+                if (nome == null || nome.isBlank()) {
+                    throw new IllegalArgumentException("O nome do personagem é obrigatorio.");
+                }
+                if (vidaMax <= 0) {
+                    throw new IllegalArgumentException("Vida maxima deve ser maior que zero.");
+                }
+                if (vidaAtual < 0 || vidaAtual > vidaMax) {
+                    throw new IllegalArgumentException("Vida atual deve estar entre zero e o máximo.");
+                }
+                if (ataqueBase <= 0) {
+                    throw new IllegalArgumentException("Ataque base deve ser maior que zero.");
+                }
+                if (defesaBase < 0) {
+                    throw new IllegalArgumentException("Defesa base não pode ser negativa");
+                }
+                this.nome = nome.trim();
+                this.vidaMax = vidaMax;
+                this.vidaAtual = vidaAtual;
+                this.ataqueBase = ataqueBase;
+                this.defesaBase = defesaBase;
+                this.defendendo = defendendo;
+            }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public int getVidaMax() {
+        return vidaMax;
+    }
+    public int getVidaAtual() {
+        return vidaAtual;
+    }
+
+    public int getAtaqueBase() {
+        return ataqueBase;
+    }
+
+    public int getDefesaBase() {
+        return defesaBase;
+    }
+    public boolean isDefendendo() {
+        return defendendo;
+    }
+
+    public boolean isDerrotado() {
+        return vidaAtual <= 0;
+    }
+
+    public boolean isVivo() {
+        return vidaAtual > 0;
+    }
+
+    public int calcularDanoAtaqueBasico(Personagem alvo) {
+        if (alvo == null) {
+            throw new IllegalArgumentException("O alvo do ataque não pode ser null.");
+        }
+        int danoBruto = Math.max(1, this.ataqueBase - alvo.defesaBase);
+        return danoBruto;
+    }
+
+    public int receberDano(int danoBruto) {
+        if (danoBruto < 0) {
+            throw new IllegalArgumentException("O dano recebido não pode ser negativo.");
+        }
+        int danoEfetivo = danoBruto;
+        if (this.defendendo) {
+            danoEfetivo = danoEfetivo / 2;
+            this.defendendo = false;
+        }
+        danoEfetivo = Math.max(0, danoEfetivo);
+        this.vidaAtual = Math.max(0, this.vidaAtual - danoEfetivo);
+        return danoEfetivo;
+    }
+
+    public int curar(int quantidade) {
+        if (quantidade < 0) {
+            throw new IllegalArgumentException("Cura não pode ser negativa.");
+        }
+        if (isDerrotado()) {
+            return 0;
+        }
+        int vidaAnterior = this.vidaAtual;
+        this.vidaAtual = Math.min(this.vidaMax, this.vidaAtual + quantidade);
+        return this.vidaAtual - vidaAnterior;
+    }
+
+    public void prepararDefesa() {
+        if (isDerrotado()) {
+            throw new IllegalStateException("Personagem morto não tem para que usar defesa.");
+        }
+        this.defendendo = true;
+    }
+
+    public abstract String getDescricaoClasse();
+}
