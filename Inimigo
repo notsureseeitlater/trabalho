@@ -1,0 +1,19 @@
+public abstract class Inimigo extends Personagem {
+
+    public Inimigo(String nome, int vidaMax, int ataqueBase, int defesaBase) throws JogoException {
+        super(nome, vidaMax, ataqueBase, defesaBase);
+    }
+
+    public Inimigo(
+            String nome,
+            int vidaMax,
+            int vidaAtual,
+            int ataqueBase,
+            int defesaBase,
+            boolean defendendo
+    ) throws JogoException {
+        super(nome, vidaMax, vidaAtual, ataqueBase, defesaBase, defendendo);
+    }
+
+    public abstract String agirAutomatico(Personagem alvo, int turnoAtual) throws JogoException;
+}
