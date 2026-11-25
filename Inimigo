@@ -17,3 +17,4 @@ public abstract class Inimigo extends Personagem {
 
     public abstract String agirAutomatico(Personagem alvo, int turnoAtual) throws JogoException;
 }
+//trombadinhafraco oponentemedio chefaoforte
